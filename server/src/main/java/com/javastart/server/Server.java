@@ -1,8 +1,8 @@
 package com.javastart.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -10,18 +10,19 @@ import java.net.Socket;
  * Класс сервера
  * Нужно понять как он в связке работает с клиентом
  * Так же отрефакторить, отделить от метода main
- *
+ * <p>
  * 1) Нужно добавить базу данных в памяти (в виде Singleton)
  * 2) Нужно уметь принимать сущности от клиента, обрабатывать их и сохранять в базу
  * 3) Нужно дописать обработку ошибок
  * 4) Добавить логирования важных действий
- *
+ * <p>
  * 5) **(со зведочкой) Научить сервер отвечать клиенту об успешных операциях
  */
 public class Server {
 
     private ServerSocket serverSocket;
     private BufferedReader reader;
+
     private int port;
 
     public Server(int port) {
@@ -39,13 +40,32 @@ public class Server {
         String external_id;
         String message;
         String extra_params;
+        String data;
         try {
-            external_id = reader.readLine();
-            message = reader.readLine();
-            extra_params = reader.readLine();
-            System.out.println(external_id + " " + message + " " + extra_params);
-        }
-        catch (IOException e) {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            data = reader.readLine();
+            StringReader stringReader = new StringReader(data);
+            Account clientAccount = objectMapper.readValue(stringReader, Account.class);
+
+            data = reader.readLine();
+            StringReader depositeReader = new StringReader(data);
+            Bill clientDeposite = objectMapper.readValue(depositeReader, Bill.class);
+
+            DepositeService depositeService = new DepositeService();
+            depositeService.getDeposite(clientAccount, clientDeposite);
+
+            data = reader.readLine();
+            StringReader paymantReader = new StringReader(data);
+            Bill clientPaymant = objectMapper.readValue(paymantReader, Bill.class);
+
+            PaymantService paymantService = new PaymantService();
+            paymantService.getPaymant(clientAccount, clientPaymant);
+
+            DataBase dataBase = DataBase.getInstance();
+            dataBase.addAccountDB(clientAccount);
+
+        } catch (IOException e) {
             System.err.println("Can't parse task, got message: " + e.getMessage());
         }
     }
@@ -74,12 +94,5 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) {
-        Server server = new Server(9999);
-        try {
-            server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 }

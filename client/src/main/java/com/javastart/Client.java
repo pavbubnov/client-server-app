@@ -3,6 +3,8 @@ package com.javastart;
 import java.io.*;
 import java.net.Socket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Это клиент для отправки сообщений на приложение сервера
  * Здесь есть несколько проблем, которые нужно исправить
@@ -19,6 +21,12 @@ import java.net.Socket;
 public class Client {
 
     private DataOutputStream toServer;
+    private ByteArrayOutputStream objectToServer;
+    private ObjectOutputStream objectOutputStream;
+    private StringWriter writer;
+    private ObjectMapper mapper;
+    private String data;
+
 
     public Client(int port) {
         try {
@@ -29,18 +37,33 @@ public class Client {
         }
     }
 
-    private void sendNotification(Long external_id, String message, String extra_params) throws Exception {
+    public void sendNotification(Long external_id, String message, String extra_params) throws Exception {
         toServer.writeBytes(external_id + "\n" + message + "\n" + extra_params + "\n");
     }
 
-    public static void main(String[] args) {
-        Client client = new Client(9999);
-
-        try {
-            client.sendNotification(1L, "CHECK-1", "params1");
-            client.sendNotification(2L, "CHECK-2", "params2");
-        } catch (Exception e) {
-            e.getMessage();
-        }
+    public void sendAccount(Account account) throws Exception {
+        writer = new StringWriter();
+        mapper = new ObjectMapper();
+        mapper.writeValue(writer, account);
+        data = writer.toString()+ "\n";
+        toServer.writeBytes(data);
     }
+
+    public void sendDeposote (Bill deposite) throws Exception {
+        writer = new StringWriter();
+        mapper = new ObjectMapper();
+        mapper.writeValue(writer, deposite);
+        data = writer.toString()+ "\n";
+        toServer.writeBytes(data);
+    }
+
+    public void sendPaymant (Bill paymant) throws Exception {
+        writer = new StringWriter();
+        mapper = new ObjectMapper();
+        mapper.writeValue(writer, paymant);
+        data = writer.toString()+ "\n";
+        toServer.writeBytes(data);
+    }
+
+
 }
