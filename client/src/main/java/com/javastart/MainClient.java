@@ -14,7 +14,6 @@ public class MainClient {
         String message;
         Integer question;
 
-
         Scanner intScanner = new Scanner(System.in);
         Scanner stringScanner = new Scanner(System.in);
 
@@ -28,14 +27,13 @@ public class MainClient {
         Account maximAccount = new Account(3, "Maxim", maximMoney);
 
         Bill pavelDeposite = new Bill(5000);
+
         Bill maximPaymant = new Bill(20000);
 
 
         try {
 
             client.sendNotification("Message before account");
-//            client.readServerAnswer();
-
             client.sendAccount(pavelAccount);
             client.sendDeposote(pavelDeposite);
 
@@ -47,14 +45,14 @@ public class MainClient {
 
             client.sendNotification("Message after account");
 
-            System.out.println("Ввести сообщение? ( 1 - да / любая клавиша - нет) ");
+            System.out.println("Ввести сообщение? ( 1 - да / 2 - нет) ");
             question = intScanner.nextInt();
 
             while (question == 1) {
                 System.out.println("Введите сообщение");
                 message = stringScanner.nextLine();
                 client.sendNotification(message);
-                System.out.println("Ввести еще сообщение? (1 - да / любая клавиша - нет)");
+                System.out.println("Ввести еще сообщение? (1 - да / 2 - нет)");
                 question = intScanner.nextInt();
             }
 

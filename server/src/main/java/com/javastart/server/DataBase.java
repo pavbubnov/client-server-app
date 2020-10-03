@@ -51,7 +51,7 @@ public class DataBase {
         return statement;
     }
 
-    public void addAccountDB (Account account) {
+    public void addAccountDB(Account account) {
 
         id = String.valueOf(account.getId());
         name = account.getName();
@@ -72,8 +72,6 @@ public class DataBase {
 
 
     }
-
-
 
 
 }

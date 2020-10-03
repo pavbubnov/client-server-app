@@ -22,7 +22,7 @@ public class Server {
 
     private ServerSocket serverSocket;
     private BufferedReader reader;
-//    private BufferedWriter answer;
+    private BufferedWriter answer;
 
 
     private int port;
@@ -35,7 +35,7 @@ public class Server {
         createConnection(port);
         Socket clientSocket = serverSocket.accept();
         reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//        answer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        answer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         startListener();
     }
 
@@ -43,7 +43,7 @@ public class Server {
         String message;
         String data;
         String dataCondition;
-//        String answerData;
+        String answerData;
 
         try {
 
@@ -54,7 +54,10 @@ public class Server {
             if (data.startsWith("{\"id\"")) {
                 StringReader stringReader = new StringReader(data);
                 Account clientAccount = objectMapper.readValue(stringReader, Account.class);
-                System.out.println("Клиент " + clientAccount.getName() + " поступил в обработку");
+                System.out.println("Client " + clientAccount.getName() + " sent");
+                answerData = "Account " + clientAccount.getName() + " sent " + "\n";
+                answer.write(answerData);
+                answer.flush();
 
                 data = reader.readLine();
 
@@ -62,18 +65,25 @@ public class Server {
                     if (data.startsWith("{\"bill\":-")) {
                         StringReader paymantReader = new StringReader(data);
                         Bill clientPaymant = objectMapper.readValue(paymantReader, Bill.class);
-                        System.out.println("Клиент " + clientAccount.getName() + " хочет оплатить сумму: " + (-1) * clientPaymant.getBill());
+                        System.out.println("Client " + clientAccount.getName() + " want to pay: " + (-1) * clientPaymant.getBill());
                         PaymantService paymantService = new PaymantService();
-                        paymantService.getPaymant(clientAccount, clientPaymant);
+                        answerData = paymantService.getPaymant(clientAccount, clientPaymant);
+                        answer.write(answerData + "\n");
+                        answer.flush();
                     } else {
                         StringReader depositeReader = new StringReader(data);
                         Bill clientDeposite = objectMapper.readValue(depositeReader, Bill.class);
-                        System.out.println("Клиент " + clientAccount.getName() + " хочет пополнить счет на : " + clientDeposite.getBill());
+                        System.out.println("Client " + clientAccount.getName() + " want to add : " + clientDeposite.getBill());
                         DepositeService depositeService = new DepositeService();
-                        depositeService.getDeposite(clientAccount, clientDeposite);
+                        answerData = depositeService.getDeposite(clientAccount, clientDeposite);
+                        answer.write(answerData + "\n");
+                        answer.flush();
                     }
                 } else {
                     System.out.println(data);
+                    answerData = "Message from client sent";
+                    answer.write(answerData + "\n");
+                    answer.flush();
                 }
                 DataBase dataBase = DataBase.getInstance();
                 dataBase.addAccountDB(clientAccount);
@@ -82,7 +92,9 @@ public class Server {
                     serverSocket.close();
                 } else {
                     System.out.println(data);
-//                    answer.write("First message sent");
+                    answerData = "message sent" + "\n";
+                    answer.write(answerData);
+                    answer.flush();
                 }
             }
 

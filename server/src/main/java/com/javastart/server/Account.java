@@ -50,7 +50,7 @@ public class Account {
     }
 
     @Override
-    protected Account clone()  {
+    protected Account clone() {
         return new Account(this.getId(), this.getName(), this.getAmount());
     }
 }
