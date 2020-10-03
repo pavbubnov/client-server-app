@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Client {
 
     private DataOutputStream toServer;
-    private ByteArrayOutputStream objectToServer;
+//    private DataInputStream fromServer;
     private ObjectOutputStream objectOutputStream;
     private StringWriter writer;
     private ObjectMapper mapper;
@@ -32,38 +32,44 @@ public class Client {
         try {
             Socket socket = new Socket("localhost", port);
             toServer = new DataOutputStream(socket.getOutputStream());
+//            fromServer = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
             e.getMessage();
         }
     }
 
-    public void sendNotification(Long external_id, String message, String extra_params) throws Exception {
-        toServer.writeBytes(external_id + "\n" + message + "\n" + extra_params + "\n");
+    public void sendNotification(String message) throws Exception {
+        toServer.writeBytes(message + "\n");
     }
 
     public void sendAccount(Account account) throws Exception {
         writer = new StringWriter();
         mapper = new ObjectMapper();
         mapper.writeValue(writer, account);
-        data = writer.toString()+ "\n";
+        data = writer.toString() + "\n";
         toServer.writeBytes(data);
     }
 
-    public void sendDeposote (Bill deposite) throws Exception {
+    public void sendDeposote(Bill deposite) throws Exception {
         writer = new StringWriter();
         mapper = new ObjectMapper();
         mapper.writeValue(writer, deposite);
-        data = writer.toString()+ "\n";
+        data = writer.toString() + "\n";
         toServer.writeBytes(data);
     }
 
-    public void sendPaymant (Bill paymant) throws Exception {
+    public void sendPaymant(Bill paymant) throws Exception {
         writer = new StringWriter();
         mapper = new ObjectMapper();
+        paymant.setBill(paymant.getBill() * (-1));
         mapper.writeValue(writer, paymant);
-        data = writer.toString()+ "\n";
+        data = writer.toString() + "\n";
         toServer.writeBytes(data);
     }
+
+//    public void readServerAnswer () throws Exception {
+//        System.out.println(fromServer.readUTF());
+//    }
 
 
 }

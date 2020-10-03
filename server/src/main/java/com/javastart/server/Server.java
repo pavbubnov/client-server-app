@@ -22,6 +22,8 @@ public class Server {
 
     private ServerSocket serverSocket;
     private BufferedReader reader;
+//    private BufferedWriter answer;
+
 
     private int port;
 
@@ -33,37 +35,57 @@ public class Server {
         createConnection(port);
         Socket clientSocket = serverSocket.accept();
         reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//        answer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         startListener();
     }
 
     private void readCommand() {
-        String external_id;
         String message;
-        String extra_params;
         String data;
+        String dataCondition;
+//        String answerData;
+
         try {
 
             ObjectMapper objectMapper = new ObjectMapper();
             data = reader.readLine();
-            StringReader stringReader = new StringReader(data);
-            Account clientAccount = objectMapper.readValue(stringReader, Account.class);
 
-            data = reader.readLine();
-            StringReader depositeReader = new StringReader(data);
-            Bill clientDeposite = objectMapper.readValue(depositeReader, Bill.class);
 
-            DepositeService depositeService = new DepositeService();
-            depositeService.getDeposite(clientAccount, clientDeposite);
+            if (data.startsWith("{\"id\"")) {
+                StringReader stringReader = new StringReader(data);
+                Account clientAccount = objectMapper.readValue(stringReader, Account.class);
+                System.out.println("Клиент " + clientAccount.getName() + " поступил в обработку");
 
-            data = reader.readLine();
-            StringReader paymantReader = new StringReader(data);
-            Bill clientPaymant = objectMapper.readValue(paymantReader, Bill.class);
+                data = reader.readLine();
 
-            PaymantService paymantService = new PaymantService();
-            paymantService.getPaymant(clientAccount, clientPaymant);
+                if (data.startsWith("{\"bill\":-") || data.startsWith("{\"bill\":")) {
+                    if (data.startsWith("{\"bill\":-")) {
+                        StringReader paymantReader = new StringReader(data);
+                        Bill clientPaymant = objectMapper.readValue(paymantReader, Bill.class);
+                        System.out.println("Клиент " + clientAccount.getName() + " хочет оплатить сумму: " + (-1) * clientPaymant.getBill());
+                        PaymantService paymantService = new PaymantService();
+                        paymantService.getPaymant(clientAccount, clientPaymant);
+                    } else {
+                        StringReader depositeReader = new StringReader(data);
+                        Bill clientDeposite = objectMapper.readValue(depositeReader, Bill.class);
+                        System.out.println("Клиент " + clientAccount.getName() + " хочет пополнить счет на : " + clientDeposite.getBill());
+                        DepositeService depositeService = new DepositeService();
+                        depositeService.getDeposite(clientAccount, clientDeposite);
+                    }
+                } else {
+                    System.out.println(data);
+                }
+                DataBase dataBase = DataBase.getInstance();
+                dataBase.addAccountDB(clientAccount);
+            } else {
+                if (data.equals("codeStopServer")) {
+                    serverSocket.close();
+                } else {
+                    System.out.println(data);
+//                    answer.write("First message sent");
+                }
+            }
 
-            DataBase dataBase = DataBase.getInstance();
-            dataBase.addAccountDB(clientAccount);
 
         } catch (IOException e) {
             System.err.println("Can't parse task, got message: " + e.getMessage());
@@ -76,6 +98,10 @@ public class Server {
                 try {
                     if (reader.ready()) {
                         readCommand();
+                    }
+                    if (serverSocket.isClosed()) {
+                        System.out.println("Server stop");
+                        break;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

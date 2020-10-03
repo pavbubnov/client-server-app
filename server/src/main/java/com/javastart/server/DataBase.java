@@ -31,7 +31,9 @@ public class DataBase {
 
         try {
             Class.forName("org.postgresql.Driver");
+            System.out.println("Драйвер проверен");
         } catch (ClassNotFoundException e) {
+            System.out.println("Ошибка драйвера");
             e.printStackTrace();
         }
 
@@ -39,10 +41,11 @@ public class DataBase {
 
             dbConnection = DriverManager.getConnection(url, user, pass);
             statement = dbConnection.createStatement();
+            System.out.println("Cвязь с БД установлена");
 
             return statement;
         } catch (SQLException throwables) {
-            System.out.println("error");
+            System.out.println("connection DB error");
             throwables.printStackTrace();
         }
         return statement;
@@ -61,8 +64,10 @@ public class DataBase {
 
         try {
             getDBConnection().execute(insertTableSQL);
+            System.out.println("Клиент " + account.getName() + " добавлен в базу данных");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            System.out.println("Ошибка передачи " + account.getName() + " в базу данных");
         }
 
 

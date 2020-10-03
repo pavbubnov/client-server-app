@@ -48,4 +48,9 @@ public class Account {
                 ", amount=" + amount +
                 '}';
     }
+
+    @Override
+    protected Account clone()  {
+        return new Account(this.getId(), this.getName(), this.getAmount());
+    }
 }

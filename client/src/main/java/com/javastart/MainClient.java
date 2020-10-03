@@ -12,10 +12,11 @@ public class MainClient {
         Client client = new Client(9999);
 
         String message;
-        String extraParams;
-        Long externalIdNumber = 2l;
+        Integer question;
 
-        Scanner scanner = new Scanner(System.in);
+
+        Scanner intScanner = new Scanner(System.in);
+        Scanner stringScanner = new Scanner(System.in);
 
         Bill pavelMoney = new Bill(10000);
         Account pavelAccount = new Account(1, "Pavel", pavelMoney);
@@ -23,33 +24,44 @@ public class MainClient {
         Bill nikitaMoney = new Bill(5000);
         Account nikitaAccount = new Account(2, "Nikita", nikitaMoney);
 
+        Bill maximMoney = new Bill(15000);
+        Account maximAccount = new Account(3, "Maxim", maximMoney);
+
         Bill pavelDeposite = new Bill(5000);
-        Bill pavelPaymant = new Bill(2500);
+        Bill maximPaymant = new Bill(20000);
+
 
         try {
-            //client.sendNotification(1L, "CHECK-1", "params1");
-            //client.sendNotification(2L, "CHECK-2", "params2");
+
+            client.sendNotification("Message before account");
+//            client.readServerAnswer();
+
             client.sendAccount(pavelAccount);
             client.sendDeposote(pavelDeposite);
-            client.sendPaymant(pavelPaymant);
-//            client.sendAccount(nikitaAccount);
+
+            client.sendAccount(nikitaAccount);
+            client.sendNotification("no client operation");
+
+            client.sendAccount(maximAccount);
+            client.sendPaymant(maximPaymant);
+
+            client.sendNotification("Message after account");
+
+            System.out.println("Ввести сообщение? ( 1 - да / любая клавиша - нет) ");
+            question = intScanner.nextInt();
+
+            while (question == 1) {
+                System.out.println("Введите сообщение");
+                message = stringScanner.nextLine();
+                client.sendNotification(message);
+                System.out.println("Ввести еще сообщение? (1 - да / любая клавиша - нет)");
+                question = intScanner.nextInt();
+            }
+
+            client.sendNotification("codeStopServer");
+
         } catch (Exception e) {
             e.getMessage();
         }
-
-
-//        for (; ; ) {
-//            externalIdNumber++;
-//            System.out.println("Введите сообщение");
-//            message = scanner.nextLine();
-//            System.out.println("Ввведите примечание");
-//            extraParams = scanner.nextLine();
-//            try {
-//                client.sendNotification(externalIdNumber, message, extraParams);
-//            } catch (Exception e) {
-//                e.getMessage();
-//            }
-//        }
-
     }
 }
