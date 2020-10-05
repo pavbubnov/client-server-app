@@ -22,16 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class Client {
 
-    private DataOutputStream toServer;
-    private InputStreamReader fromServer;
+    public DataOutputStream toServer;
+    public InputStreamReader fromServer;
     private ObjectOutputStream objectOutputStream;
-    private StringWriter writer;
-    private ObjectMapper mapper;
-    private String data;
-    private Integer codeData;
-    private int flag;
-    private List<Integer> answerData;
-
 
     public Client(int port) {
         try {
@@ -41,60 +34,6 @@ public class Client {
         } catch (IOException e) {
             e.getMessage();
         }
-    }
-
-    public void sendNotification(String message) throws Exception {
-        toServer.writeBytes(message + "\n");
-        if (!message.equals("codeStopServer")) {
-            readServerAnswer();
-        }
-    }
-
-    public void sendAccount(Account account) throws Exception {
-        writer = new StringWriter();
-        mapper = new ObjectMapper();
-        mapper.writeValue(writer, account);
-        data = writer.toString() + "\n";
-        toServer.writeBytes(data);
-        readServerAnswer();
-    }
-
-    public void sendDeposote(Bill deposite) throws Exception {
-        writer = new StringWriter();
-        mapper = new ObjectMapper();
-        mapper.writeValue(writer, deposite);
-        data = writer.toString() + "\n";
-        toServer.writeBytes(data);
-        readServerAnswer();
-    }
-
-    public void sendPaymant(Bill paymant) throws Exception {
-        writer = new StringWriter();
-        mapper = new ObjectMapper();
-        paymant.setBill(paymant.getBill() * (-1));
-        mapper.writeValue(writer, paymant);
-        data = writer.toString() + "\n";
-        toServer.writeBytes(data);
-        readServerAnswer();
-    }
-
-    public void readServerAnswer() throws Exception {
-        flag = 0;
-        answerData = new ArrayList<Integer>();
-
-        while (flag == 0) {
-            codeData = fromServer.read();
-            answerData.add(codeData);
-            if (codeData == 10) {
-                flag = 1;
-            }
-        }
-
-        char[] decodeData = new char[answerData.size()];
-        for (int i = 0; i < answerData.size() - 1; i++) {
-            decodeData[i] = (char) answerData.get(i).intValue();
-        }
-        System.out.println(decodeData);
     }
 
 

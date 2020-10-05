@@ -8,8 +8,12 @@ import java.util.Scanner;
 
 public class MainClient {
 
+    private static final String CODE_STOP_SERVER = "codeStopServer";
+
     public static void main(String[] args) {
+
         Client client = new Client(9999);
+        Sender sender = new Sender();
 
         String message;
         Integer question;
@@ -30,20 +34,19 @@ public class MainClient {
 
         Bill maximPaymant = new Bill(20000);
 
-
         try {
 
-            client.sendNotification("Message before account");
-            client.sendAccount(pavelAccount);
-            client.sendDeposote(pavelDeposite);
+            sender.sendNotification("Message before account", client);
+            sender.sendAccount(pavelAccount, client);
+            sender.sendDeposote(pavelDeposite, client);
 
-            client.sendAccount(nikitaAccount);
-            client.sendNotification("no client operation");
+            sender.sendAccount(nikitaAccount, client);
+            sender.sendNotification("no client operation", client);
 
-            client.sendAccount(maximAccount);
-            client.sendPaymant(maximPaymant);
+            sender.sendAccount(maximAccount, client);
+            sender.sendPaymant(maximPaymant, client);
 
-            client.sendNotification("Message after account");
+            sender.sendNotification("Message after account", client);
 
             System.out.println("Ввести сообщение? ( 1 - да / 2 - нет) ");
             question = intScanner.nextInt();
@@ -51,12 +54,12 @@ public class MainClient {
             while (question == 1) {
                 System.out.println("Введите сообщение");
                 message = stringScanner.nextLine();
-                client.sendNotification(message);
+                sender.sendNotification(message, client);
                 System.out.println("Ввести еще сообщение? (1 - да / 2 - нет)");
                 question = intScanner.nextInt();
             }
 
-            client.sendNotification("codeStopServer");
+            sender.sendNotification(CODE_STOP_SERVER, client);
 
         } catch (Exception e) {
             e.getMessage();

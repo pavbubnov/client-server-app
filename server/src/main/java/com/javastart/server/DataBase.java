@@ -5,10 +5,6 @@ import java.sql.*;
 public class DataBase {
 
     private static DataBase INSTANCE;
-    private String id;
-    private String name;
-    private String amount;
-    private String infoToTable;
 
     private DataBase() {
     }
@@ -53,15 +49,10 @@ public class DataBase {
 
     public void addAccountDB(Account account) {
 
-        id = String.valueOf(account.getId());
-        name = account.getName();
-        amount = String.valueOf(account.getAmount().getBill());
-        infoToTable = "(" + id + ",'" + name + "','" + amount + "')";
-
         String insertTableSQL = "INSERT INTO CLIENT"
                 + "(ID, NAME, AMOUNT)" + "VALUES" +
-                infoToTable;
-
+                "(" + String.valueOf(account.getId()) + ",'" + account.getName() + "','" +
+                String.valueOf(account.getAmount().getBill()) + "')";
         try {
             getDBConnection().execute(insertTableSQL);
             System.out.println("Клиент " + account.getName() + " добавлен в базу данных");
@@ -69,8 +60,22 @@ public class DataBase {
             throwables.printStackTrace();
             System.out.println("Ошибка передачи " + account.getName() + " в базу данных");
         }
+    }
 
-
+    public String updateBill(Account account) {
+        String updateTableSQL = "UPDATE client SET amount = "
+                + String.valueOf(account.getAmount().getBill()) + "WHERE ID = " + String.valueOf(account.getId());
+        try {
+            getDBConnection().execute(updateTableSQL);
+            System.out.println(account.getName() + " client bill is updated");
+            return "Client Bill " + account.getName() + " updated";
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            System.out.println("There are some problems with  " + account.getName() + " client bill updating " +
+                    " please, ask to support team");
+            return "There are some problems with  " + account.getName() + " client bill updating " +
+                    " please, ask to support team";
+        }
     }
 
 

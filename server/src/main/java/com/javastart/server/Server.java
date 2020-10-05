@@ -40,65 +40,35 @@ public class Server {
     }
 
     private void readCommand() {
-        String message;
-        String data;
-        String dataCondition;
-        String answerData;
 
         try {
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            data = reader.readLine();
-
+            String data = reader.readLine();
+            DataBase dataBase = DataBase.getInstance();
 
             if (data.startsWith("{\"id\"")) {
-                StringReader stringReader = new StringReader(data);
-                Account clientAccount = objectMapper.readValue(stringReader, Account.class);
-                System.out.println("Client " + clientAccount.getName() + " sent");
-                answerData = "Account " + clientAccount.getName() + " sent " + "\n";
-                answer.write(answerData);
-                answer.flush();
-
+                Account clientAccount = readAccount(data);
+                if (clientAccount != null) {
+                    dataBase.addAccountDB(clientAccount);
+                }
                 data = reader.readLine();
-
-                if (data.startsWith("{\"bill\":-") || data.startsWith("{\"bill\":")) {
+                if ((data.startsWith("{\"bill\":-") || data.startsWith("{\"bill\":") && clientAccount != null)) {
                     if (data.startsWith("{\"bill\":-")) {
-                        StringReader paymantReader = new StringReader(data);
-                        Bill clientPaymant = objectMapper.readValue(paymantReader, Bill.class);
-                        System.out.println("Client " + clientAccount.getName() + " want to pay: " + (-1) * clientPaymant.getBill());
-                        PaymantService paymantService = new PaymantService();
-                        answerData = paymantService.getPaymant(clientAccount, clientPaymant);
-                        answer.write(answerData + "\n");
-                        answer.flush();
+                        readAndReleasePaymant(data, clientAccount);
                     } else {
-                        StringReader depositeReader = new StringReader(data);
-                        Bill clientDeposite = objectMapper.readValue(depositeReader, Bill.class);
-                        System.out.println("Client " + clientAccount.getName() + " want to add : " + clientDeposite.getBill());
-                        DepositeService depositeService = new DepositeService();
-                        answerData = depositeService.getDeposite(clientAccount, clientDeposite);
-                        answer.write(answerData + "\n");
-                        answer.flush();
+                        readAndReleaseDeposite(data, clientAccount);
                     }
                 } else {
-                    System.out.println(data);
-                    answerData = "Message from client sent";
-                    answer.write(answerData + "\n");
-                    answer.flush();
+                    readMessage(data);
                 }
-                DataBase dataBase = DataBase.getInstance();
-                dataBase.addAccountDB(clientAccount);
+
             } else {
                 if (data.equals("codeStopServer")) {
                     serverSocket.close();
                 } else {
-                    System.out.println(data);
-                    answerData = "message sent" + "\n";
-                    answer.write(answerData);
-                    answer.flush();
+                    readMessage(data);
                 }
             }
-
-
         } catch (IOException e) {
             System.err.println("Can't parse task, got message: " + e.getMessage());
         }
@@ -132,5 +102,62 @@ public class Server {
         }
     }
 
+    private Account readAccount(String data) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            StringReader stringReader = new StringReader(data);
+            Account clientAccount = objectMapper.readValue(stringReader, Account.class);
+            System.out.println("Client " + clientAccount.getName() + " sent");
+            answer.write("Account " + clientAccount.getName() + " sent " + "\n");
+            answer.flush();
+            return clientAccount;
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Account read error");
+            return null;
+        }
+    }
 
+    private void readAndReleasePaymant(String data, Account clientAccount) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringReader paymantReader = new StringReader(data);
+        Bill clientPaymant = null;
+
+        try {
+            clientPaymant = objectMapper.readValue(paymantReader, Bill.class);
+            System.out.println("Client " + clientAccount.getName() + " want to pay: " + (-1) * clientPaymant.getBill());
+            PaymantService paymantService = new PaymantService();
+            answer.write(paymantService.getPaymant(clientAccount, clientPaymant) + "\n");
+            answer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readAndReleaseDeposite(String data, Account clientAccount) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringReader depositeReader = new StringReader(data);
+        Bill clientDeposite = null;
+
+        try {
+            clientDeposite = objectMapper.readValue(depositeReader, Bill.class);
+            System.out.println("Client " + clientAccount.getName() + " want to add : " + clientDeposite.getBill());
+            DepositeService depositeService = new DepositeService();
+            answer.write(depositeService.getDeposite(clientAccount, clientDeposite) + "\n");
+            answer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readMessage(String data) {
+        System.out.println(data);
+        try {
+            answer.write("Message from client sent" + "\n");
+            answer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
