@@ -22,9 +22,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class Client {
 
-    public DataOutputStream toServer;
-    public InputStreamReader fromServer;
-    private ObjectOutputStream objectOutputStream;
+    private DataOutputStream toServer;
+    private InputStreamReader fromServer;
+    //private ObjectOutputStream objectOutputStream;
+
+    public DataOutputStream getToServer() {
+        return toServer;
+    }
+
+    public InputStreamReader getFromServer() {
+        return fromServer;
+    }
 
     public Client(int port) {
         try {

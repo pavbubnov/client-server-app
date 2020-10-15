@@ -10,7 +10,7 @@ public class Recipient {
         List<Integer> answerData = new ArrayList<Integer>();
 
         while (flag == 0) {
-            Integer codeData = client.fromServer.read();
+            Integer codeData = client.getFromServer().read();
             answerData.add(codeData);
             if (codeData == 10) {
                 flag = 1;

@@ -12,7 +12,7 @@ public class Sender {
     private ObjectMapper mapper;
 
     public void sendNotification(String message, Client client) throws Exception {
-        client.toServer.writeBytes(message + "\n");
+        client.getToServer().writeBytes(message + "\n");
         if (!message.equals("codeStopServer")) {
             Recipient.readServerAnswer(client);
         }
@@ -22,7 +22,7 @@ public class Sender {
         writer = new StringWriter();
         mapper = new ObjectMapper();
         mapper.writeValue(writer, account);
-        client.toServer.writeBytes(writer.toString() + "\n");
+        client.getToServer().writeBytes(writer.toString() + "\n");
         Recipient.readServerAnswer(client);
     }
 
@@ -30,7 +30,7 @@ public class Sender {
         writer = new StringWriter();
         mapper = new ObjectMapper();
         mapper.writeValue(writer, deposite);
-        client.toServer.writeBytes(writer.toString() + "\n");
+        client.getToServer().writeBytes(writer.toString() + "\n");
         Recipient.readServerAnswer(client);
     }
 
@@ -39,7 +39,7 @@ public class Sender {
         mapper = new ObjectMapper();
         paymant.setBill(paymant.getBill() * (-1));
         mapper.writeValue(writer, paymant);
-        client.toServer.writeBytes(writer.toString() + "\n");
+        client.getToServer().writeBytes(writer.toString() + "\n");
         Recipient.readServerAnswer(client);
     }
 

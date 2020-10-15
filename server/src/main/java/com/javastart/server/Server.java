@@ -44,12 +44,12 @@ public class Server {
         try {
 
             String data = reader.readLine();
-            DataBase dataBase = DataBase.getInstance();
+            AccountDAO accountDAO = new AccountDAO();
 
             if (data.startsWith("{\"id\"")) {
                 Account clientAccount = readAccount(data);
                 if (clientAccount != null) {
-                    dataBase.addAccountDB(clientAccount);
+                    accountDAO.addAccountDB(clientAccount);
                 }
                 data = reader.readLine();
                 if ((data.startsWith("{\"bill\":-") || data.startsWith("{\"bill\":") && clientAccount != null)) {
