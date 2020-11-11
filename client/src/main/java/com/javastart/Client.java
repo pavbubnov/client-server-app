@@ -2,6 +2,10 @@ package com.javastart;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Это клиент для отправки сообщений на приложение сервера
@@ -19,28 +23,26 @@ import java.net.Socket;
 public class Client {
 
     private DataOutputStream toServer;
+    private InputStreamReader fromServer;
+    //private ObjectOutputStream objectOutputStream;
+
+    public DataOutputStream getToServer() {
+        return toServer;
+    }
+
+    public InputStreamReader getFromServer() {
+        return fromServer;
+    }
 
     public Client(int port) {
         try {
             Socket socket = new Socket("localhost", port);
             toServer = new DataOutputStream(socket.getOutputStream());
+            fromServer = new InputStreamReader(socket.getInputStream());
         } catch (IOException e) {
             e.getMessage();
         }
     }
 
-    private void sendNotification(Long external_id, String message, String extra_params) throws Exception {
-        toServer.writeBytes(external_id + "\n" + message + "\n" + extra_params + "\n");
-    }
 
-    public static void main(String[] args) {
-        Client client = new Client(9999);
-
-        try {
-            client.sendNotification(1L, "CHECK-1", "params1");
-            client.sendNotification(2L, "CHECK-2", "params2");
-        } catch (Exception e) {
-            e.getMessage();
-        }
-    }
 }
