@@ -1,7 +1,5 @@
 package com.javastart;
 
-import java.io.Serializable;
-
 public class Account {
 
 

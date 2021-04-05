@@ -3,8 +3,6 @@ package com.javastart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Sender {
 
